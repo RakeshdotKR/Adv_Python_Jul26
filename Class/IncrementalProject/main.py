@@ -6,48 +6,63 @@ from reports.inventory import Inventory
 from reports.inventory import inventory_generator
 from reports.inventory import InventoryReport
 
-# Create products
-laptop = Product("Laptop", 55000, 10)
-mouse = Product("Wireless Mouse", 1200, 50)
-keyboard = Product("Mechanical Keyboard", 4500, 25)
+from concurrency.order_processor import process_orders
+from concurrency.inventory_summary import generate_summary
 
-print("\nProduct Details")
-print("-" * 40)
+def main():
+    # Create products
+    laptop = Product("Laptop", 55000, 10)
+    mouse = Product("Wireless Mouse", 1200, 50)
+    keyboard = Product("Mechanical Keyboard", 4500, 25)
 
-laptop.display_details()
-mouse.display_details()
-keyboard.display_details()
+    print("\nProduct Details")
+    print("-" * 40)
 
-# Display automatically registered product classes
-ProductRegistry.display_registered_products()
+    laptop.display_details()
+    mouse.display_details()
+    keyboard.display_details()
 
-products = [laptop,mouse,keyboard]
-price_details = calculate_prices(products)
+    # Display automatically registered product classes
+    ProductRegistry.display_registered_products()
 
-print("\n Price Report")
+    products = [laptop,mouse,keyboard]
+    price_details = calculate_prices(products)
 
-for product,details in zip(products,price_details):
-    print(f"\n Product: {product.name}")
-    print(f"Original Price: {details['original']}")
-    print(f"Discounted Price: {details['discounted']}")
-    print(f"Tax: {details['tax']}")
-    print(f"Final Price: {details['final']}")
+    print("\n Price Report")
 
-print("Iterator Output")
+    for product,details in zip(products,price_details):
+        print(f"\n Product: {product.name}")
+        print(f"Original Price: {details['original']}")
+        print(f"Discounted Price: {details['discounted']}")
+        print(f"Tax: {details['tax']}")
+        print(f"Final Price: {details['final']}")
 
-inventory = Inventory(products)
+    print("Iterator Output")
 
-for product in inventory:
-    print(product.name)
+    inventory = Inventory(products)
 
-print("Generator Output")
-for product in inventory_generator(products):
-    print(product.name)
+    for product in inventory:
+        print(product.name)
 
-with InventoryReport("reports/inventory_report.txt") as report:
-    report.write("Inventory Report\n")
+    print("Generator Output")
     for product in inventory_generator(products):
-        report.write(
-            f"{product.name} | Rs.{product.price} | Qty: {product.quantity}\n"
-        )
-    print("\nInventory report generated successfully.")
+        print(product.name)
+
+    with InventoryReport("reports/inventory_report.txt") as report:
+        report.write("Inventory Report\n")
+        for product in inventory_generator(products):
+            report.write(
+                f"{product.name} | Rs.{product.price} | Qty: {product.quantity}\n"
+            )
+        print("\nInventory report generated successfully.")
+
+    print("\n")
+
+    process_orders(products)
+    generate_summary(products)
+
+
+from multiprocessing import freeze_support
+if __name__ == "__main__":
+    freeze_support()
+    main()
