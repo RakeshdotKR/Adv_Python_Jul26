@@ -32,3 +32,17 @@ if __name__ == "__main__":
         port=8000,
         reload=True
     )
+# Use the following URL to test
+# http://127.0.0.1:8000/docs
+# Request body:
+"""
+{
+  "name": "Rakesh",
+  "email": "rakesh@r.com",
+  "age": 36,
+  "is_active": true,
+  "tags": [
+    "developer",
+    "Trainer"]
+}
+"""
